@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
@@ -9,7 +11,34 @@ namespace MongoDbPractice
         static void Main(string[] args)
         {
             MongoCRUD db = new("AddressBook");
-            db.InsertRecord("Users", new PersonModel {FirstName = "Mary", LastName = "Jones"});
+            //PersonModel person = new()
+            //{
+            //    FirstName = "Joe",
+            //    LastName = "Smith",
+            //    PrimaryAddress = new()
+            //    {
+            //        StreetAddress = "101 new street",
+            //        City = "Some City",
+            //        State = "KS",
+            //        ZipCode = "11457"
+            //    }
+            //};
+            //db.InsertRecord("Users", person);
+
+            var records = db.LoadRecords<PersonModel>("Users");
+
+            foreach (var record in records)
+            {
+                Console.WriteLine($"{record.Id}: {record.FirstName} {record.LastName}");
+
+                if (record.PrimaryAddress is not null)
+                {
+                    Console.WriteLine(record.PrimaryAddress.City);
+                }
+
+                Console.WriteLine();
+            }
+
             Console.ReadLine();
         }
     }
@@ -19,6 +48,15 @@ namespace MongoDbPractice
         [BsonId] public Guid Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public AddressModel PrimaryAddress { get; set; }
+    }
+
+    public class AddressModel
+    {
+        public string StreetAddress { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public string ZipCode { get; set; }
     }
 
     public class MongoCRUD
@@ -35,6 +73,12 @@ namespace MongoDbPractice
         {
             var collection = db.GetCollection<T>(table);
             collection.InsertOne(record);
+        }
+
+        public List<T> LoadRecords<T>(string table)
+        {
+            var collection = db.GetCollection<T>(table);
+            return collection.Find(new BsonDocument()).ToList(); // Equivalent to SELECT *;
         }
     }
 }
