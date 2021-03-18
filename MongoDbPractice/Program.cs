@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
 
 namespace MongoDbPractice
 {
@@ -25,60 +21,32 @@ namespace MongoDbPractice
             //};
             //db.InsertRecord("Users", person);
 
-            var records = db.LoadRecords<PersonModel>("Users");
+            //var records = db.LoadRecords<PersonModel>("Users");
+
+            //foreach (var record in records)
+            //{
+            //    Console.WriteLine($"{record.Id}: {record.FirstName} {record.LastName}");
+
+            //    if (record.PrimaryAddress is not null)
+            //    {
+            //        Console.WriteLine(record.PrimaryAddress.City);
+            //    }
+
+            //    Console.WriteLine();
+            //}
+            var records = db.LoadRecords<NameModel>("Users");
 
             foreach (var record in records)
             {
-                Console.WriteLine($"{record.Id}: {record.FirstName} {record.LastName}");
-
-                if (record.PrimaryAddress is not null)
-                {
-                    Console.WriteLine(record.PrimaryAddress.City);
-                }
-
+                Console.WriteLine($"{record.FirstName} {record.LastName}");
                 Console.WriteLine();
             }
 
+            //var oneRec = db.LoadRecordById<PersonModel>("Users", new Guid("6836c2fb-3973-4377-919f-b9b60cb5ba0e"));
+            //oneRec.DateOfBirth = new DateTime(1992, 10, 1, 0, 0, 0, DateTimeKind.Utc);
+            //db.UpsertRecord("Users", oneRec.Id, oneRec);
+            //db.DeleteRecord<PersonModel>("Users", oneRec.Id);
             Console.ReadLine();
-        }
-    }
-
-    public class PersonModel
-    {
-        [BsonId] public Guid Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public AddressModel PrimaryAddress { get; set; }
-    }
-
-    public class AddressModel
-    {
-        public string StreetAddress { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
-        public string ZipCode { get; set; }
-    }
-
-    public class MongoCRUD
-    {
-        private IMongoDatabase db;
-
-        public MongoCRUD(string database)
-        {
-            var client = new MongoClient("mongodb://root:example@localhost:27017");
-            db = client.GetDatabase(database);
-        }
-
-        public void InsertRecord<T>(string table, T record)
-        {
-            var collection = db.GetCollection<T>(table);
-            collection.InsertOne(record);
-        }
-
-        public List<T> LoadRecords<T>(string table)
-        {
-            var collection = db.GetCollection<T>(table);
-            return collection.Find(new BsonDocument()).ToList(); // Equivalent to SELECT *;
         }
     }
 }
