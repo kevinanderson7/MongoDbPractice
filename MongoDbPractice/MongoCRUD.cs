@@ -11,7 +11,7 @@ namespace MongoDbPractice
 
         public MongoCRUD(string database)
         {
-            var client = new MongoClient("mongodb://root:example@localhost:27017");
+            var client = new MongoClient();
             db = client.GetDatabase(database);
         }
 
